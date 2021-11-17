@@ -137,6 +137,17 @@ resource "sigsci_corp_signal_tag" "sus-login" {
   description     = "Make sure these requests are visible in your ATO dashboard or customize the rule to avoid adding this Signal to rules"
 }
 
+# List of known login paths
+resource "sigsci_corp_list" "known_login_paths" {
+  name        = "Known Login Paths"
+  type        = "string"
+  description = "Paths known as logins to exclude from login discovery"
+  entries = [
+    "/some/login/path"
+  ]
+}
+
+
 # Add a signal when there is a suspected login
 resource "sigsci_corp_rule" "sus-login-rule" {
     corp_scope       = "global"
@@ -221,6 +232,12 @@ resource "sigsci_corp_rule" "sus-login-rule" {
         operator = "equals"
         type     = "single"
         value    = "POST"
+    }
+    conditions {
+        field    = "path"
+        operator = "notInList"
+        type     = "single"
+        value    = "known_login_paths"
     }
 }
 #### end login discovery
